@@ -16,6 +16,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+#  UI for Quiz App 
+
 from models import Question
 from quizfactory import QuizFactory
 
@@ -196,7 +198,7 @@ class QuizApp(QMainWindow):
             """
             QFrame#contentCard {
                 background-color: #FFFFFF;
-                border: 2px solid #FBBF24;
+                border: 2px solid #FBB24;
                 border-radius: 12px;
             }
             """

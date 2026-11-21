@@ -65,7 +65,7 @@ class Quiz:
     ):
         self.title = title
         self.description = description
-        self.instructor = instructor
+        self.instructor = instructor  # generally, the same as author
         self.welcome_message = welcome_message
         self.questions = questions or []
 

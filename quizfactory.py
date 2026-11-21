@@ -143,6 +143,7 @@ class QuizFactory:
             ],
         )
 
+        #  Test quizzes,  add more here
         return {
             "Python Fundamentals": python_quiz,
             "Data Structures & Algorithms": ds_quiz,
