@@ -16,23 +16,33 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-#  UI for Quiz App 
+#  UI for Quiz App
 
 from models import Question
 from quizfactory import QuizFactory
 
 
 class QuizApp(QMainWindow):
+    # Standardized surface & border tokens
+    SURFACE_CANVAS = "#FEF3C7"
+    SURFACE_CARD = "#FFFFFF"
+    SURFACE_INSET = "#FFFBEB"
+
+    BORDER_CARD = "1.5px solid #FBBF24"
+    BORDER_INSET = "1.5px solid #FBBF24"
+    BORDER_SECONDARY = "1.5px solid #FCD34D"
+    BORDER_OPTION_DEFAULT = "1.5px solid #5EEAD4"
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Python & CS Master Quiz Suite")
         self.resize(860, 840)
 
         self.setStyleSheet(
-            """
-            QMainWindow {
-                background-color: #FEF3C7;
-            }
+            f"""
+            QMainWindow {{
+                background-color: {self.SURFACE_CANVAS};
+            }}
             """
         )
 
@@ -52,22 +62,23 @@ class QuizApp(QMainWindow):
         self.init_ui()
         self.render_question()
 
-    @staticmethod
+    @classmethod
     # lower priority buttons
-    def _secondary_btn_style() -> str:
-        return """
-            QPushButton {
+    def _secondary_btn_style(cls) -> str:
+        return f"""
+            QPushButton {{
                 background-color: #FDE68A;
                 color: #451A03;
                 font-size: 13px;
                 font-weight: 600;
                 padding: 8px 16px;
-                border-radius: 6px;
-                border: none;
-            }
-            QPushButton:hover {
+                border-radius: 8px;
+                border: {cls.BORDER_SECONDARY};
+            }}
+            QPushButton:hover {{
                 background-color: #FCD34D;
-            }
+                border-color: #FBBF24;
+            }}
         """
 
     @staticmethod
@@ -79,11 +90,12 @@ class QuizApp(QMainWindow):
                 font-size: 13px;
                 font-weight: 600;
                 padding: 8px 16px;
-                border-radius: 6px;
-                border: none;
+                border-radius: 8px;
+                border: 1.5px solid #0F766E;
             }
             QPushButton:hover {
                 background-color: #115E59;
+                border-color: #115E59;
             }
         """
 
@@ -105,6 +117,17 @@ class QuizApp(QMainWindow):
             if widget is not None:
                 widget.deleteLater()
 
+    @staticmethod
+    def _make_card_shadow(
+        parent: QWidget, blur: int = 24, y_offset: int = 5, alpha: int = 44
+    ) -> QGraphicsDropShadowEffect:
+        shadow = QGraphicsDropShadowEffect(parent)
+        shadow.setBlurRadius(blur)
+        shadow.setXOffset(0)
+        shadow.setYOffset(y_offset)
+        shadow.setColor(QColor(19, 78, 74, alpha))
+        return shadow
+
     def init_ui(self):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -119,13 +142,16 @@ class QuizApp(QMainWindow):
         self.top_control_bar.setObjectName("topControlBar")
         self.top_control_bar.setFixedWidth(780)
         self.top_control_bar.setStyleSheet(
-            """
-            QFrame#topControlBar {
-                background-color: #FFFFFF;
-                border: 1.5px solid #FCD34D;
+            f"""
+            QFrame#topControlBar {{
+                background-color: {self.SURFACE_CARD};
+                border: {self.BORDER_CARD};
                 border-radius: 10px;
-            }
+            }}
             """
+        )
+        self.top_control_bar.setGraphicsEffect(
+            self._make_card_shadow(self.top_control_bar, blur=24, y_offset=5, alpha=44)
         )
         top_layout = QHBoxLayout(self.top_control_bar)
         top_layout.setContentsMargins(12, 10, 12, 10)
@@ -134,12 +160,12 @@ class QuizApp(QMainWindow):
         selector_box.setObjectName("selectorBox")
         selector_box.setFixedWidth(320)
         selector_box.setStyleSheet(
-            """
-            QFrame#selectorBox {
-                background-color: #FFFFFF;
-                border: 1.5px solid #FBBF24;
+            f"""
+            QFrame#selectorBox {{
+                background-color: {self.SURFACE_INSET};
+                border: {self.BORDER_SECONDARY};
                 border-radius: 8px;
-            }
+            }}
             """
         )
         selector_layout = QVBoxLayout(selector_box)
@@ -148,7 +174,7 @@ class QuizApp(QMainWindow):
 
         selector_caption = QLabel("SELECT QUIZ")
         selector_caption.setStyleSheet(
-            "color: #115E59; font-size: 10px; font-weight: 700; border: none;"
+            "color: #115E59; font-size: 10px; font-weight: 700; border: none; background: transparent;"
         )
 
         self.quiz_combo = QComboBox()
@@ -156,21 +182,21 @@ class QuizApp(QMainWindow):
         if self.selected_quiz_title:
             self.quiz_combo.setCurrentText(self.selected_quiz_title)
         self.quiz_combo.setStyleSheet(
-            """
-            QComboBox {
+            f"""
+            QComboBox {{
                 color: #134E4A;
                 font-size: 13px;
                 font-weight: 700;
-                background-color: #FFFFFF;
+                background-color: {self.SURFACE_INSET};
                 border: none;
                 padding: 2px 4px;
-            }
-            QComboBox QAbstractItemView {
-                background-color: #FFFFFF;
+            }}
+            QComboBox QAbstractItemView {{
+                background-color: {self.SURFACE_CARD};
                 color: #134E4A;
                 selection-background-color: #FEF3C7;
                 selection-color: #134E4A;
-            }
+            }}
             """
         )
 
@@ -195,21 +221,17 @@ class QuizApp(QMainWindow):
         self.content_container.setObjectName("contentCard")
         self.content_container.setFixedWidth(780)
         self.content_container.setStyleSheet(
-            """
-            QFrame#contentCard {
-                background-color: #FFFFFF;
-                border: 2px solid #FBB24;
-                border-radius: 12px;
-            }
+            f"""
+            QFrame#contentCard {{
+                background-color: {self.SURFACE_CARD};
+                border: {self.BORDER_CARD};
+                border-radius: 10px;
+            }}
             """
         )
-
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(24)
-        shadow.setXOffset(0)
-        shadow.setYOffset(4)
-        shadow.setColor(QColor(19, 78, 74, 38))
-        self.content_container.setGraphicsEffect(shadow)
+        self.content_container.setGraphicsEffect(
+            self._make_card_shadow(self.content_container, blur=24, y_offset=5, alpha=44)
+        )
 
         self.card_layout = QVBoxLayout(self.content_container)
         self.card_layout.setContentsMargins(24, 24, 24, 24)
@@ -236,6 +258,7 @@ class QuizApp(QMainWindow):
             font-weight: 700;
             padding: 6px 10px;
             border-radius: 8px;
+            border: 1.5px solid #0F766E;
             """
         )
         self.instructor_badge.setVisible(False)
@@ -247,20 +270,20 @@ class QuizApp(QMainWindow):
         self.welcome_text = QLabel(self._format_welcome_text(self.active_quiz, False))
         self.welcome_text.setStyleSheet("color: #134E4A; font-size: 14px; font-weight: 600;")
 
-        # Author & Course Overview Panel
+        # Author & Course Overview Panel (inset surface inside white card)
         self.instructor_panel = QFrame()
         self.instructor_panel.setObjectName("instructorPanel")
         self.instructor_panel.setStyleSheet(
-            """
-            QFrame#instructorPanel {
-                background-color: #FEF3C7;
-                border: 1.5px solid #FBBF24;
+            f"""
+            QFrame#instructorPanel {{
+                background-color: {self.SURFACE_INSET};
+                border: {self.BORDER_INSET};
                 border-radius: 8px;
-            }
-            QFrame#instructorPanel QLabel {
+            }}
+            QFrame#instructorPanel QLabel {{
                 border: none;
                 background: transparent;
-            }
+            }}
             """
         )
         panel_layout = QVBoxLayout(self.instructor_panel)
@@ -272,7 +295,7 @@ class QuizApp(QMainWindow):
 
         divider_line = QFrame()
         divider_line.setFrameShape(QFrame.Shape.HLine)
-        divider_line.setStyleSheet("background-color: #FCD34D; max-height: 1px; border: none;")
+        divider_line.setStyleSheet("background-color: #FBBF24; max-height: 1px; border: none;")
 
         self.author_name_text = QLabel()
         self.author_email_text = QLabel()
@@ -405,12 +428,12 @@ class QuizApp(QMainWindow):
         self.review_scroll.setWidgetResizable(True)
         self.review_scroll.setFixedHeight(260)
         self.review_scroll.setStyleSheet(
-            """
-            QScrollArea {
-                border: 1px solid #FDE68A;
+            f"""
+            QScrollArea {{
+                border: {self.BORDER_INSET};
                 border-radius: 8px;
-                background-color: #FFFBEB;
-            }
+                background-color: {self.SURFACE_INSET};
+            }}
             """
         )
         self.review_content = QWidget()
@@ -467,19 +490,20 @@ class QuizApp(QMainWindow):
             )
         else:
             self.mode_switch.setStyleSheet(
-                """
-                QPushButton {
-                    background-color: #F3F4F6;
+                f"""
+                QPushButton {{
+                    background-color: {self.SURFACE_INSET};
                     color: #134E4A;
-                    border: 1.5px solid #FCD34D;
+                    border: {self.BORDER_SECONDARY};
                     border-radius: 14px;
                     padding: 6px 14px;
                     font-size: 13px;
                     font-weight: 600;
-                }
-                QPushButton:hover {
-                    background-color: #FEF3C7;
-                }
+                }}
+                QPushButton:hover {{
+                    background-color: #FDE68A;
+                    border-color: #FBBF24;
+                }}
                 """
             )
 
@@ -538,7 +562,7 @@ class QuizApp(QMainWindow):
         bg_hex: str,
         fg_hex: str,
         border_hex: str,
-        border_width: int = 2,
+        border_width: float = 1.5,
     ):
         btn.setStyleSheet(
             f"""
@@ -546,7 +570,7 @@ class QuizApp(QMainWindow):
                 background-color: {bg_hex};
                 color: {fg_hex};
                 border: {border_width}px solid {border_hex};
-                border-radius: 6px;
+                border-radius: 8px;
                 padding: 10px 12px;
                 font-size: 14px;
                 font-weight: 500;
@@ -590,10 +614,10 @@ class QuizApp(QMainWindow):
             if i < 0 or i >= len(current_q.answers):
                 continue
             ans_obj = current_q.answers[i]
-            bg = "#FFFFFF"
+            bg = self.SURFACE_CARD
             fg = "#111827"
-            border = "#99F6E4"
-            bw = 2
+            border = "#5EEAD4"
+            bw = 1.5
             disabled = current_q.selected_index is not None and self.instructor_mode
 
             if current_q.selected_index is not None:
@@ -747,9 +771,9 @@ class QuizApp(QMainWindow):
             row_frame.setStyleSheet(
                 f"""
                 QFrame#reviewRow_{i} {{
-                    background-color: #FFFFFF;
-                    border: 1px solid #FDE68A;
-                    border-radius: 6px;
+                    background-color: {self.SURFACE_CARD};
+                    border: {self.BORDER_SECONDARY};
+                    border-radius: 8px;
                 }}
                 QFrame#reviewRow_{i} QLabel {{
                     border: none;
