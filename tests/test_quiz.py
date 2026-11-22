@@ -1,4 +1,5 @@
-from models import Answer, Question, Quiz, User
+
+from models import Answer, Question, Quiz, User 
 
 
 def make_quiz(questions: list[Question] | None = None, instructor: User | None = None) -> Quiz:
