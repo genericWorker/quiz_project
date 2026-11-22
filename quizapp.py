@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-#  UI for Quiz App
+#  UI for Quiz App GUI
 
 from models import Question
 from quizfactory import QuizFactory
