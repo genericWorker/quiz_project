@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL_TEST = "http://127.0.0.1:8000";
+const API_BASE_URL = "https://https://mwhitehead483.github.io"
 
 const state = {
   quizTitles: [],
