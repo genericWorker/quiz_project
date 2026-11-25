@@ -3,6 +3,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QFont
 from PySide6.QtWidgets import (
     QApplication,
+    QCheckBox,
     QComboBox,
     QFrame,
     QGraphicsDropShadowEffect,
@@ -47,7 +48,7 @@ class QuizApp(QMainWindow):
         )
 
         # Load available quizzes from QuizFactory
-        self.available_quizzes = QuizFactory.get_available_quizzes()
+        self.available_quizzes = QuizFactory.create_quizzes()
         self.quiz_titles = list(self.available_quizzes.keys())
 
         # State attributes
@@ -205,16 +206,36 @@ class QuizApp(QMainWindow):
         selector_layout.addWidget(selector_caption)
         selector_layout.addWidget(self.quiz_combo)
 
-        self.mode_switch = QPushButton("Instructor View")
-        self.mode_switch.setCheckable(True)
-        self.mode_switch.setChecked(False)
-        self.mode_switch.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._update_switch_style(False)
-        self.mode_switch.toggled.connect(self.toggle_instructor_mode)
+        self.instructor_checkbox = QCheckBox("Instructor View")
+        self.instructor_checkbox.setChecked(False)
+        self.instructor_checkbox.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.instructor_checkbox.setStyleSheet(
+            """
+            QCheckBox {
+                color: #134E4A;
+                font-size: 13px;
+                font-weight: 600;
+                spacing: 6px;
+                padding: 6px 10px;
+            }
+            QCheckBox::indicator {
+                width: 16px;
+                height: 16px;
+                border-radius: 4px;
+                border: 1.5px solid #0F766E;
+                background-color: #FFFFFF;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #0F766E;
+                border-color: #0F766E;
+            }
+            """
+        )
+        self.instructor_checkbox.toggled.connect(self.toggle_instructor_mode)
 
         top_layout.addWidget(selector_box)
         top_layout.addStretch()
-        top_layout.addWidget(self.mode_switch)
+        top_layout.addWidget(self.instructor_checkbox)
 
         # --- Main Content Card ---
         self.content_container = QFrame()
@@ -472,41 +493,6 @@ class QuizApp(QMainWindow):
         root_layout.addWidget(self.top_control_bar)
         root_layout.addWidget(self.content_container)
 
-    # change in button state on/off for instructor view
-    def _update_switch_style(self, checked: bool):
-        if checked:
-            self.mode_switch.setStyleSheet(
-                """
-                QPushButton {
-                    background-color: #0F766E;
-                    color: #FFFFFF;
-                    border: 1.5px solid #0F766E;
-                    border-radius: 14px;
-                    padding: 6px 14px;
-                    font-size: 13px;
-                    font-weight: 600;
-                }
-                """
-            )
-        else:
-            self.mode_switch.setStyleSheet(
-                f"""
-                QPushButton {{
-                    background-color: {self.SURFACE_INSET};
-                    color: #134E4A;
-                    border: {self.BORDER_SECONDARY};
-                    border-radius: 14px;
-                    padding: 6px 14px;
-                    font-size: 13px;
-                    font-weight: 600;
-                }}
-                QPushButton:hover {{
-                    background-color: #FDE68A;
-                    border-color: #FBBF24;
-                }}
-                """
-            )
-
     @staticmethod
     def _make_meta_row(
         label_text: str, value_label: QLabel, align_top: bool = False
@@ -529,7 +515,6 @@ class QuizApp(QMainWindow):
 
     def toggle_instructor_mode(self, checked: bool):
         self.instructor_mode = checked
-        self._update_switch_style(checked)
         self.instructor_badge.setVisible(self.instructor_mode)
         self.welcome_text.setText(
             self._format_welcome_text(self.active_quiz, self.instructor_mode)
@@ -541,7 +526,7 @@ class QuizApp(QMainWindow):
         if not title:
             return
         self.selected_quiz_title = title
-        fresh_quizzes = QuizFactory.get_available_quizzes()
+        fresh_quizzes = QuizFactory.create_quizzes()
         quiz = fresh_quizzes.get(title)
 
         if quiz:
@@ -584,9 +569,10 @@ class QuizApp(QMainWindow):
         )
 
     def _update_feedback_and_styles(self, current_q: Question):
-        if current_q.selected_index is not None:
-            pts = getattr(current_q, "points", 10)
-            if self.instructor_mode:
+        pts = getattr(current_q, "points", 10)
+
+        if self.instructor_mode:
+            if current_q.selected_index is not None:
                 if current_q.is_correct:
                     self.feedback_text.setText(
                         f"Correct! (+{pts} pts) {current_q.explanation}"
@@ -603,10 +589,18 @@ class QuizApp(QMainWindow):
                         "color: #991B1B; font-size: 13px; font-weight: 600;"
                     )
             else:
-                self.feedback_text.setText("Answer recorded.")
-                self.feedback_text.setStyleSheet(
-                    "color: #115E59; font-size: 13px; font-weight: 600;"
+                correct_text = current_q.get_correct_answer_text()
+                self.feedback_text.setText(
+                    f"Correct answer highlighted: '{correct_text}'. {current_q.explanation}"
                 )
+                self.feedback_text.setStyleSheet(
+                    "color: #166534; font-size: 13px; font-weight: 600;"
+                )
+        elif current_q.selected_index is not None:
+            self.feedback_text.setText("Answer recorded.")
+            self.feedback_text.setStyleSheet(
+                "color: #115E59; font-size: 13px; font-weight: 600;"
+            )
         else:
             self.feedback_text.setText("")
 
@@ -616,27 +610,24 @@ class QuizApp(QMainWindow):
             ans_obj = current_q.answers[i]
             bg = self.SURFACE_CARD
             fg = "#111827"
-            border = "#5EEAD4"
+            border = self.BORDER_OPTION_DEFAULT.split()[-1]
             bw = 1.5
-            disabled = current_q.selected_index is not None and self.instructor_mode
 
-            if current_q.selected_index is not None:
-                if self.instructor_mode:
-                    if ans_obj.is_correct:
-                        bg = "#DCFCE7"
-                        fg = "#14532D"
-                        border = "#15803D"
-                    elif i == current_q.selected_index and not ans_obj.is_correct:
-                        bg = "#FEE2E2"
-                        fg = "#7F1D1D"
-                        border = "#B91C1C"
-                else:
-                    if i == current_q.selected_index:
-                        bg = "#CCFBF1"
-                        fg = "#134E4A"
-                        border = "#0F766E"
+            if self.instructor_mode:
+                if ans_obj.is_correct:
+                    bg = "#DCFCE7"
+                    fg = "#14532D"
+                    border = "#15803D"
+                elif i == current_q.selected_index and not ans_obj.is_correct:
+                    bg = "#FEE2E2"
+                    fg = "#7F1D1D"
+                    border = "#B91C1C"
+            elif current_q.selected_index is not None and i == current_q.selected_index:
+                bg = "#CCFBF1"
+                fg = "#134E4A"
+                border = "#0F766E"
 
-            btn.setEnabled(not disabled)
+            btn.setEnabled(True)
             self._style_option_button(btn, bg, fg, border, bw)
 
     def handle_answer_click(self, ans_index: int):
@@ -648,9 +639,6 @@ class QuizApp(QMainWindow):
             return
 
         current_q: Question = self.active_quiz.questions[idx]
-        if current_q.selected_index is not None and self.instructor_mode:
-            return
-
         current_q.selected_index = ans_index
         self.score_display.setText(
             f"Score: {self.active_quiz.calculate_score()} / {self.active_quiz.total_possible_points()} Pts"

@@ -1,11 +1,12 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
-class User:
-    """Represents an instructor or author user."""
-    def __init__(self, name: str, email: str):
-        self.name = name
-        self.email = email
+@dataclass(frozen=True)
+class Author:
+    """Represents the creator or demo credit metadata for a quiz session."""
+
+    name: str
+    email: str
 
 
 @dataclass

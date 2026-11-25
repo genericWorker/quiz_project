@@ -1,16 +1,18 @@
-from models import Answer, Question, Quiz, User
+from models import Answer, Author, Question, Quiz
 
 
 class QuizFactory:
     """Factory responsible for instantiating unique authors, questions, and complete quizzes."""
 
     @staticmethod
-    def get_available_quizzes() -> dict[str, Quiz]:
-        # Distinct author User instances for each quiz
-        prof_whitehead = User(name="Prof. Michael Whitehead", email="mwhitehead@dccc.edu")
-        prof_vance = User(name="Dr. Jonathan Vance", email="jvance@dccc.edu")
-        prof_sterling = User(name="Dr. Aris Sterling", email="asterling@dccc.edu")
-        prof_rostova = User(name="Dr. Elena Rostova", email="erostova@dccc.edu")
+    def create_quizzes(source: str | None = None) -> dict[str, Quiz]:
+        # Future hook: load from CSV or database when `source` is provided.
+        _ = source
+
+        # Distinct Author instances for each quiz
+        prof_whitehead = Author(name="Prof. Michael Whitehead", email="mwhitehead@dccc.edu")
+        prof_vance = Author(name="Dr. Jonathan Vance", email="jvance@dccc.edu")
+        prof_rostova = Author(name="Dr. Elena Rostova", email="erostova@dccc.edu")
 
         # 1. Python Fundamentals Quiz (Author: Prof. Michael Whitehead)
         python_quiz = Quiz(
@@ -54,26 +56,26 @@ class QuizFactory:
                     points=10,
                 ),
                 Question(
-                prompt="A Python dictionary maintains insertion order as a guaranteed language feature starting in Python 3.7.",
-                answers=[
-                    Answer(text="True", is_correct=True),
-                    Answer(text="False", is_correct=False),
-                ],
-                explanation="Insertion-order preservation became an official part of the Python language specification in 3.7.",
-                category="Data Structures",
-                points=10,
-             ),
-             Question(
-                prompt="In Python, `is` and `==` always return the exact same boolean result.",
-                answers=[
-                    Answer(text="True", is_correct=False),
-                    Answer(text="False", is_correct=True),
-                ],
-                explanation="`==` checks value equality, whereas `is` checks object identity (whether two references point to the same object in memory).",
-                category="Core Python",
-                points=10,
-            ),
-         ],
+                    prompt="A Python dictionary maintains insertion order as a guaranteed language feature starting in Python 3.7.",
+                    answers=[
+                        Answer("True", is_correct=True),
+                        Answer("False", is_correct=False),
+                    ],
+                    explanation="Insertion-order preservation became an official part of the Python language specification in 3.7.",
+                    category="Data Structures",
+                    points=10,
+                ),
+                Question(
+                    prompt="In Python, `is` and `==` always return the exact same boolean result.",
+                    answers=[
+                        Answer("True", is_correct=False),
+                        Answer("False", is_correct=True),
+                    ],
+                    explanation="`==` checks value equality, whereas `is` checks object identity (whether two references point to the same object in memory).",
+                    category="Core Python",
+                    points=10,
+                ),
+            ],
         )
 
         # 2. Data Structures & Algorithms Quiz (Author: Dr. Jonathan Vance)
@@ -120,7 +122,6 @@ class QuizFactory:
             ],
         )
 
-
         # 3. Relational Database Systems Quiz (Author: Dr. Elena Rostova)
         db_quiz = Quiz(
             title="Relational Database Systems",
@@ -143,7 +144,6 @@ class QuizFactory:
             ],
         )
 
-        #  Test quizzes,  add more here
         return {
             "Python Fundamentals": python_quiz,
             "Data Structures & Algorithms": ds_quiz,

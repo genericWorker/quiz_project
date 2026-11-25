@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python &amp; CS Master Quiz Suite</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <!-- Top Control Bar -->
+    <header class="card top-bar">
+      <div class="selector-box">
+        <label for="quizSelect" class="selector-caption">SELECT QUIZ</label>
+        <select id="quizSelect" class="quiz-combo"></select>
+      </div>
+
+      <label class="instructor-toggle">
+        <input type="checkbox" id="instructorCheckbox" />
+        <span>Instructor View</span>
+      </label>
+    </header>
+
+    <!-- Main Content Card -->
+    <section class="card content-card">
+      <!-- Question View -->
+      <div id="questionView">
+        <div class="header-row">
+          <h1 id="quizInfoText" class="quiz-title">Active Quiz Suite</h1>
+          <span id="instructorBadge" class="instructor-badge hidden">Instructor View Active</span>
+        </div>
+
+        <p id="welcomeText" class="welcome-text">Welcome, student!</p>
+
+        <!-- Author & Course Overview Inset Panel -->
+        <div class="inset-panel">
+          <h2 class="panel-title">Author &amp; Course Overview</h2>
+          <hr class="amber-rule" />
+          <dl class="meta-grid">
+            <dt>Author:</dt>
+            <dd id="authorNameText"></dd>
+            <dt>Author Email:</dt>
+            <dd id="authorEmailText"></dd>
+            <dt>Description:</dt>
+            <dd id="courseDescText"></dd>
+            <dt>Total Questions:</dt>
+            <dd id="bankCountText"></dd>
+          </dl>
+        </div>
+
+        <!-- Progress & Score Row -->
+        <div class="stats-row">
+          <span id="progressText" class="progress-text"></span>
+          <div class="stats-right">
+            <span id="pointsText" class="points-text"></span>
+            <span id="scoreDisplay" class="score-display">Score: 0 Pts</span>
+          </div>
+        </div>
+
+        <div class="progress-track" aria-hidden="true">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+
+        <!-- Prompt, Options, Feedback -->
+        <p id="questionText" class="question-prompt"></p>
+        <div id="optionsContainer" class="options-list"></div>
+        <p id="feedbackText" class="feedback-text"></p>
+
+        <!-- Navigation -->
+        <div class="nav-row">
+          <button type="button" id="prevButton" class="btn btn-secondary">← &nbsp;Previous</button>
+          <button type="button" id="nextButton" class="btn btn-primary">Next Question &nbsp;→</button>
+        </div>
+      </div>
+
+      <!-- Results View -->
+      <div id="resultsView" class="hidden">
+        <h2 class="results-title">Quiz Complete!</h2>
+        <p id="resultsGrade" class="results-grade"></p>
+        <hr class="light-rule" />
+
+        <div id="reviewList" class="review-scroll"></div>
+
+        <div class="nav-row results-actions">
+          <button type="button" id="reviewButton" class="btn btn-secondary">← &nbsp;Review Questions</button>
+          <button type="button" id="restartButton" class="btn btn-primary">↻ &nbsp;Restart Quiz</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

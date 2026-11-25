@@ -1,5 +1,5 @@
 import pytest
-from models import Answer, Question
+from models import Answer, Author, Question, Quiz
 
 
 @pytest.fixture
@@ -92,3 +92,125 @@ def test_question_reset_clears_selection_and_points(sample_question: Question):
     assert sample_question.selected_index is None
     assert sample_question.is_correct is False
     assert sample_question.earned_points == 0
+
+
+def test_author_attributes():
+    author = Author(name="Prof. Michael Whitehead", email="mwhitehead@dccc.edu")
+    assert author.name == "Prof. Michael Whitehead"
+    assert author.email == "mwhitehead@dccc.edu"
+
+
+def test_quiz_with_instructor_and_questions():
+    instructor = Author(name="Dr. Elena Rostova", email="erostova@dccc.edu")
+    q1 = Question(
+        prompt="Q1?",
+        answers=[Answer("A", True), Answer("B", False)],
+        points=10,
+    )
+    q2 = Question(
+        prompt="Q2?",
+        answers=[Answer("X", False), Answer("Y", True)],
+        points=20,
+    )
+    quiz = Quiz(
+        title="Sample Quiz",
+        description="Sample description",
+        instructor=instructor,
+        welcome_message="Welcome!",
+        questions=[q1, q2],
+    )
+
+    assert quiz.instructor_name == "Dr. Elena Rostova"
+    assert quiz.instructor_email == "erostova@dccc.edu"
+    assert quiz.total_questions() == 2
+    assert quiz.total_possible_points() == 30
+    assert quiz.calculate_score() == 0
+    assert quiz.calculate_percentage() == 0
+
+
+def test_quiz_missing_instructor_fallbacks():
+    quiz = Quiz(
+        title="Fallback Quiz",
+        description="No instructor assigned",
+        instructor=None,  # type: ignore[arg-type]
+    )
+
+    assert quiz.instructor_name == "Staff"
+    assert quiz.instructor_email == "author@college.edu"
+    assert quiz.total_questions() == 0
+    assert quiz.total_possible_points() == 0
+    assert quiz.calculate_score() == 0
+    assert quiz.calculate_percentage() == 0
+
+
+@pytest.mark.parametrize(
+    ("q1_choice", "q2_choice", "expected_score", "expected_pct"),
+    [
+        (None, None, 0, 0),
+        (0, None, 10, 33),  # 10 / 30 = 33.33... -> rounds to 33
+        (None, 1, 20, 67),  # 20 / 30 = 66.66... -> rounds to 67
+        (0, 1, 30, 100),
+        (1, 0, 0, 0),
+    ],
+)
+def test_quiz_scoring_and_percentage_rounding(
+    q1_choice: int | None,
+    q2_choice: int | None,
+    expected_score: int,
+    expected_pct: int,
+):
+    instructor = Author(name="Dr. Jonathan Vance", email="jvance@dccc.edu")
+    q1 = Question(
+        prompt="Q1?",
+        answers=[Answer("Correct", True), Answer("Wrong", False)],
+        points=10,
+    )
+    q2 = Question(
+        prompt="Q2?",
+        answers=[Answer("Wrong", False), Answer("Correct", True)],
+        points=20,
+    )
+    quiz = Quiz(
+        title="Scoring Quiz",
+        description="Tests score and rounding",
+        instructor=instructor,
+        questions=[q1, q2],
+    )
+
+    q1.selected_index = q1_choice
+    q2.selected_index = q2_choice
+
+    assert quiz.calculate_score() == expected_score
+    assert quiz.calculate_percentage() == expected_pct
+
+
+def test_quiz_reset_clears_all_questions():
+    instructor = Author(name="Prof. Michael Whitehead", email="mwhitehead@dccc.edu")
+    q1 = Question(
+        prompt="Q1?",
+        answers=[Answer("True", True), Answer("False", False)],
+        points=10,
+    )
+    q2 = Question(
+        prompt="Q2?",
+        answers=[Answer("Yes", True), Answer("No", False)],
+        points=15,
+    )
+    quiz = Quiz(
+        title="Reset Quiz",
+        description="Tests resetting all questions",
+        instructor=instructor,
+        questions=[q1, q2],
+    )
+
+    q1.selected_index = 0
+    q2.selected_index = 1
+    assert quiz.calculate_score() == 10
+    assert quiz.calculate_percentage() == 40
+
+    quiz.reset()
+
+    assert q1.selected_index is None
+    assert q2.selected_index is None
+    assert quiz.calculate_score() == 0
+    assert quiz.calculate_percentage() == 0

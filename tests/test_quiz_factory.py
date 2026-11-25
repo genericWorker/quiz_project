@@ -5,10 +5,10 @@ from quizfactory import QuizFactory
 
 @pytest.fixture
 def quiz_catalog() -> dict[str, Quiz]:
-    return QuizFactory.get_available_quizzes()
+    return QuizFactory.create_quizzes()
 
 
-def test_get_available_quizzes_returns_expected_titles(quiz_catalog: dict[str, Quiz]):
+def test_create_quizzes_quizzes_returns_expected_titles(quiz_catalog: dict[str, Quiz]):
     expected_titles = {
         "Python Fundamentals",
         "Data Structures & Algorithms",
@@ -68,8 +68,8 @@ def test_every_question_has_valid_answers_and_points(quiz_catalog: dict[str, Qui
 
 
 def test_factory_returns_independent_quiz_instances():
-    first_call = QuizFactory.get_available_quizzes()
-    second_call = QuizFactory.get_available_quizzes()
+    first_call = QuizFactory.create_quizzes()
+    second_call = QuizFactory.create_quizzes()
 
     assert first_call is not second_call
 

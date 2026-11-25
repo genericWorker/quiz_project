@@ -1,0 +1,11 @@
+ # requirements.txt
+
+   # desktop app requirements
+    PySide6>=6.12.0
+    pytest>=9.2.0
+    python-dotenv>=1.2.4
+
+
+    # web app requirements
+    uvicorn[standard]>=0.30.0
+

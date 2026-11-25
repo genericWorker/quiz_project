@@ -1,9 +1,9 @@
 
-from models import Answer, Question, Quiz, User 
+from models import Answer, Question, Quiz, Author 
 
 
-def make_quiz(questions: list[Question] | None = None, instructor: User | None = None) -> Quiz:
-    author = instructor if instructor is not None else User("Grace Hopper", "grace@example.com")
+def make_quiz(questions: list[Question] | None = None, instructor: Author | None = None) -> Quiz:
+    author = instructor if instructor is not None else Author("Grace Hopper", "grace@example.com")
     return Quiz(
         title="Core Python & CS",
         description="Unit test quiz for scoring, points, percentage, and reset.",
@@ -77,7 +77,7 @@ def test_empty_quiz_avoids_zero_division():
 
 
 def test_instructor_metadata_and_fallback():
-    instructor = User("Ada Lovelace", "ada@analytical.org")
+    instructor = Author("Ada Lovelace", "ada@analytical.org")
     named_quiz = Quiz("Test", "Desc", instructor=instructor)
     assert named_quiz.instructor_name == "Ada Lovelace"
     assert named_quiz.instructor_email == "ada@analytical.org"
