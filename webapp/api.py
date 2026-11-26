@@ -1,8 +1,17 @@
+from pathlib import Path
+import sys
 from typing import Dict, List, Optional
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+# Ensure the project root and webapp directory are importable regardless of cwd
+_HERE = Path(__file__).resolve().parent
+_ROOT = _HERE.parent
+for _p in (str(_ROOT), str(_HERE)):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
 from quizfactory import QuizFactory
 from models import Quiz, Question, Answer, Author
@@ -14,7 +23,8 @@ app.add_middleware(
     allow_origins=[
         "https://genericworker.github.io",
         "http://localhost:5500",
-        "http://127.0.0.1:5500"],
+        "http://127.0.0.1:5500",
+    ],
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
@@ -75,6 +85,15 @@ def _build_quiz_map() -> Dict[str, object]:
     return QuizFactory.create_quizzes()
 
 
+def _resolve_total_points(quiz: object, questions_out: List[QuestionOut]) -> int:
+    attr = getattr(quiz, "total_possible_points", None)
+    if callable(attr):
+        return int(attr())
+    if isinstance(attr, (int, float)):
+        return int(attr)
+    return sum(q.points for q in questions_out)
+
+
 @app.get("/api/quizzes", response_model=List[str])
 def list_quizzes():
     quizzes = _build_quiz_map()
@@ -111,7 +130,7 @@ def get_quiz(quiz_title: str):
         instructor_email=quiz.instructor_email,
         welcome_message=quiz.welcome_message or "Welcome, student!",
         description=quiz.description,
-        total_possible_points=quiz.total_possible_points(),
+        total_possible_points=_resolve_total_points(quiz, questions_out),
         questions=questions_out,
     )
 
