@@ -13,6 +13,7 @@ def test_create_quizzes_quizzes_returns_expected_titles(quiz_catalog: dict[str, 
         "Python Fundamentals",
         "Data Structures & Algorithms",
         "Relational Database Systems",
+        "Java Object-Oriented Programming",
     }
     assert set(quiz_catalog.keys()) == expected_titles
     for key, quiz in quiz_catalog.items():
@@ -34,9 +35,10 @@ def test_each_quiz_has_valid_instructor_and_metadata(quiz_catalog: dict[str, Qui
 @pytest.mark.parametrize(
     ("quiz_title", "expected_count", "expected_total_points"),
     [
-        ("Python Fundamentals", 5, 50),
+        ("Python Fundamentals", 8, 80),
         ("Data Structures & Algorithms", 3, 40),
-        ("Relational Database Systems", 1, 10),
+        ("Relational Database Systems", 5, 55),
+        ("Java Object-Oriented Programming", 5, 55),
     ],
 )
 def test_quiz_question_counts_and_point_totals(
