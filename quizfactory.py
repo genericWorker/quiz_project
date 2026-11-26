@@ -13,6 +13,7 @@ class QuizFactory:
         prof_whitehead = Author(name="Prof. Michael Whitehead", email="mwhitehead@dccc.edu")
         prof_vance = Author(name="Dr. Jonathan Vance", email="jvance@dccc.edu")
         prof_rostova = Author(name="Dr. Elena Rostova", email="erostova@dccc.edu")
+        prof_chen = Author(name="Prof. David Chen", email="dchen@dccc.edu")
 
         # 1. Python Fundamentals Quiz (Author: Prof. Michael Whitehead)
         python_quiz = Quiz(
@@ -73,6 +74,40 @@ class QuizFactory:
                     ],
                     explanation="`==` checks value equality, whereas `is` checks object identity (whether two references point to the same object in memory).",
                     category="Core Python",
+                    points=10,
+                ),
+                Question(
+                    prompt="What does `len([x for x in range(10) if x % 2 == 0])` evaluate to?",
+                    answers=[
+                        Answer("4", is_correct=False),
+                        Answer("5", is_correct=True),
+                        Answer("6", is_correct=False),
+                        Answer("10", is_correct=False),
+                    ],
+                    explanation="The even numbers in `range(10)` are 0, 2, 4, 6, and 8—five elements in total.",
+                    category="Comprehensions",
+                    points=10,
+                ),
+                Question(
+                    prompt="Which special method is called automatically when initializing a new instance of a Python class?",
+                    answers=[
+                        Answer("__new__", is_correct=False),
+                        Answer("__init__", is_correct=True),
+                        Answer("__call__", is_correct=False),
+                        Answer("__main__", is_correct=False),
+                    ],
+                    explanation="`__init__` initializes attributes on a newly created object instance.",
+                    category="Object-Oriented Python",
+                    points=10,
+                ),
+                Question(
+                    prompt="True or False: Using a mutable object like a list as a default function argument can cause state to persist across calls.",
+                    answers=[
+                        Answer("True", is_correct=True),
+                        Answer("False", is_correct=False),
+                    ],
+                    explanation="Default argument expressions are evaluated once when the function is defined, so mutating a default list shares changes across calls.",
+                    category="Functions",
                     points=10,
                 ),
             ],
@@ -141,6 +176,120 @@ class QuizFactory:
                     category="Databases",
                     points=10,
                 ),
+                Question(
+                    prompt="Which SQL clause is used to filter rows AFTER grouping and aggregate functions are applied?",
+                    answers=[
+                        Answer("WHERE", is_correct=False),
+                        Answer("HAVING", is_correct=True),
+                        Answer("ORDER BY", is_correct=False),
+                        Answer("DISTINCT", is_correct=False),
+                    ],
+                    explanation="`HAVING` filters grouped results (such as `COUNT(*)` or `SUM()`), whereas `WHERE` filters individual rows before grouping.",
+                    category="SQL Queries",
+                    points=10,
+                ),
+                Question(
+                    prompt="What does a PRIMARY KEY constraint enforce in a relational table?",
+                    answers=[
+                        Answer("Foreign key cascades on delete", is_correct=False),
+                        Answer("Uniqueness and non-null values for each row identifier", is_correct=True),
+                        Answer("Automatic alphabetical sorting of rows", is_correct=False),
+                        Answer("Read-only access to the column", is_correct=False),
+                    ],
+                    explanation="A primary key uniquely identifies every record and cannot contain NULL values.",
+                    category="Schema Design",
+                    points=10,
+                ),
+                Question(
+                    prompt="Which JOIN returns all rows from the left table and matching rows from the right table (with NULLs where there is no match)?",
+                    answers=[
+                        Answer("INNER JOIN", is_correct=False),
+                        Answer("LEFT JOIN", is_correct=True),
+                        Answer("CROSS JOIN", is_correct=False),
+                        Answer("NATURAL JOIN", is_correct=False),
+                    ],
+                    explanation="A `LEFT JOIN` (or `LEFT OUTER JOIN`) preserves every row from the left table even when no matching row exists on the right.",
+                    category="SQL Joins",
+                    points=15,
+                ),
+                Question(
+                    prompt="True or False: In SQL, `NULL = NULL` evaluates to TRUE.",
+                    answers=[
+                        Answer("True", is_correct=False),
+                        Answer("False", is_correct=True),
+                    ],
+                    explanation="Because NULL represents an unknown or missing value, `NULL = NULL` evaluates to UNKNOWN; use `IS NULL` or `IS NOT NULL` instead.",
+                    category="SQL Logic",
+                    points=10,
+                ),
+            ],
+        )
+
+        # 4. Java Object-Oriented Programming Quiz (Author: Prof. David Chen)
+        java_oop_quiz = Quiz(
+            title="Java Object-Oriented Programming",
+            description="Evaluate your understanding of classes, inheritance, interfaces, polymorphism, and encapsulation.",
+            instructor=prof_chen,
+            welcome_message="Welcome to the Java Object-Oriented Programming quiz! Choose the best answer for each question.",
+            questions=[
+                Question(
+                    prompt="Which access modifier restricts visibility strictly to code inside the same class?",
+                    answers=[
+                        Answer("public", is_correct=False),
+                        Answer("protected", is_correct=False),
+                        Answer("private", is_correct=True),
+                        Answer("default (package-private)", is_correct=False),
+                    ],
+                    explanation="`private` members can only be accessed within the declaring class itself, supporting encapsulation.",
+                    category="Encapsulation",
+                    points=10,
+                ),
+                Question(
+                    prompt="Which keyword is used by a class in Java to implement an interface?",
+                    answers=[
+                        Answer("extends", is_correct=False),
+                        Answer("implements", is_correct=True),
+                        Answer("inherits", is_correct=False),
+                        Answer("uses", is_correct=False),
+                    ],
+                    explanation="Classes use `implements` to adopt an interface contract (and `extends` to inherit from a superclass).",
+                    category="Interfaces",
+                    points=10,
+                ),
+                Question(
+                    prompt="True or False: A Java class can directly extend more than one concrete superclass.",
+                    answers=[
+                        Answer("True", is_correct=False),
+                        Answer("False", is_correct=True),
+                    ],
+                    explanation="Java supports single class inheritance to avoid ambiguity, though a class can implement multiple interfaces.",
+                    category="Inheritance",
+                    points=10,
+                ),
+                Question(
+                    prompt="What is dynamic method dispatch in Java?",
+                    answers=[
+                        Answer("Resolving an overridden instance method at runtime based on the actual object type", is_correct=True),
+                        Answer("Compiling static methods into native machine code before execution", is_correct=False),
+                        Answer("Overloading method names with different parameter lists at compile time", is_correct=False),
+                        Answer("Garbage-collecting unreferenced objects on the heap", is_correct=False),
+                    ],
+                    explanation="Polymorphic calls to overridden instance methods resolve dynamically at runtime to the concrete subclass implementation.",
+                    category="Polymorphism",
+                    points=15,
+                ),
+                Question(
+                    prompt="Which keyword prevents a method from being overridden in a subclass or a class from being subclassed?",
+                    answers=[
+                        Answer("static", is_correct=False),
+                        Answer("final", is_correct=True),
+                        Answer("abstract", is_correct=False),
+                        Answer("transient", is_correct=False),
+                    ],
+                    explanation="Declaring a method or class `final` prohibits overriding or subclassing it.",
+                    category="Modifiers",
+                    points=10,
+                ),
             ],
         )
 
@@ -148,4 +297,5 @@ class QuizFactory:
             "Python Fundamentals": python_quiz,
             "Data Structures & Algorithms": ds_quiz,
             "Relational Database Systems": db_quiz,
+            "Java Object-Oriented Programming": java_oop_quiz,
         }
