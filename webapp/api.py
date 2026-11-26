@@ -10,7 +10,7 @@ app = FastAPI(title="Python & CS Master Quiz Suite API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://127.0.0.1:5500",
+        "https://genericworker.github.io",
         "http://localhost:5500",
         "https://<mwhitehead483@gmail.com"],
     allow_methods=["GET", "POST", "OPTIONS"],
