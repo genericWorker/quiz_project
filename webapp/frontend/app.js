@@ -1,5 +1,6 @@
-const API_BASE_URL_TEST = "http://127.0.0.1:8000";
-const API_BASE_URL = "https://genericworker.github.io"
+const API_BASE_URL_LOCAL = "http://127.0.0.1:8000";
+const API_BASE_URL_WRONG = "https://genericworker.github.io"
+const API_BASE_URL="https://quiz-api-genericworkerquiz-project.onrender.com"
 
 const state = {
   quizTitles: [],

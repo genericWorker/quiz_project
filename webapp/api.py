@@ -3,7 +3,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+
 from quizfactory import QuizFactory
+from models import Quiz, Question, Answer, Author
 
 app = FastAPI(title="Python & CS Master Quiz Suite API")
 
@@ -12,7 +14,7 @@ app.add_middleware(
     allow_origins=[
         "https://genericworker.github.io",
         "http://localhost:5500",
-        "https://<mwhitehead483@gmail.com"],
+        "http://127.0.0.1:5500"],
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
