@@ -1,6 +1,6 @@
 
 import flet as ft
-from quiz_project.quizfactory import QuizFactory
+from legacy.quiz_project.quizfactory import QuizFactory
 from models import Question, Quiz
 
 
