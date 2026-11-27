@@ -5,6 +5,23 @@ class QuizFactory:
     """Factory responsible for instantiating unique authors, questions, and complete quizzes."""
 
     @staticmethod
+    def create_question(
+        prompt: str,
+        options: list[tuple[str, bool]],
+        explanation: str = "",
+        category: str = "General",
+        points: int = 10,
+    ) -> Question:
+        answers = [Answer(text=text, is_correct=is_correct) for text, is_correct in options]
+        return Question(
+            prompt=prompt,
+            answers=answers,
+            explanation=explanation,
+            category=category,
+            points=points,
+        )
+
+    @staticmethod
     def create_quizzes(source: str | None = None) -> dict[str, Quiz]:
         # Future hook: load from CSV or database when `source` is provided.
         _ = source
@@ -293,9 +310,64 @@ class QuizFactory:
             ],
         )
 
+        # --- Sample configurable quiz: Color Facts (uncomment to test) ---
+        # color_quiz = Quiz(
+        #     title="Color Science & Digital Color",
+        #     description="Explore how light wavelengths, human cone cells, and RGB/CMYK color models work.",
+        #     instructor=prof_whitehead,
+        #     welcome_message="Welcome to the Color Science & Digital Color quiz!",
+        #     questions=[
+        #         QuizFactory.create_question(
+        #             prompt="Why does a healthy green leaf appear green in daylight?",
+        #             options=[
+        #                 ("Chlorophyll absorbs red and blue wavelengths and reflects green light", True),
+        #                 ("The leaf emits its own green photons independently of sunlight", False),
+        #                 ("Human rod cells only detect green wavelengths during the day", False),
+        #             ],
+        #             explanation="Objects appear the color of the light wavelengths they reflect rather than absorb.",
+        #             category="Light & Reflection",
+        #             points=10,
+        #         ),
+        #         QuizFactory.create_question(
+        #             prompt="What happens when full-intensity Red, Green, and Blue light are combined in an additive RGB display?",
+        #             options=[
+        #                 ("Black", False),
+        #                 ("White", True),
+        #                 ("Brown", False),
+        #             ],
+        #             explanation="RGB is an additive light model; combining maximum red, green, and blue light produces white.",
+        #             category="Digital Color",
+        #             points=10,
+        #         ),
+        #         QuizFactory.create_question(
+        #             prompt="Which color model is subtractive and used for printing ink on paper?",
+        #             options=[
+        #                 ("RGB", False),
+        #                 ("HSL", False),
+        #                 ("CMYK", True),
+        #             ],
+        #             explanation="CMYK (Cyan, Magenta, Yellow, Key/Black) filters out reflected light from white paper.",
+        #             category="Color Models",
+        #             points=10,
+        #         ),
+        #         QuizFactory.create_question(
+        #             prompt="How many types of color-sensitive cone photoreceptors do most humans have in the retina?",
+        #             options=[
+        #                 ("Two (S and L)", False),
+        #                 ("Three (S, M, and L)", True),
+        #                 ("Four (R, G, B, and Y)", False),
+        #             ],
+        #             explanation="Most humans are trichromats with short-, medium-, and long-wavelength cones.",
+        #             category="Human Vision",
+        #             points=15,
+        #         ),
+        #     ],
+        # )
+
         return {
-            "Python Fundamentals": python_quiz,
-            "Data Structures & Algorithms": ds_quiz,
-            "Relational Database Systems": db_quiz,
-            "Java Object-Oriented Programming": java_oop_quiz,
+            python_quiz.title: python_quiz,
+            ds_quiz.title: ds_quiz,
+            db_quiz.title: db_quiz,
+            java_oop_quiz.title: java_oop_quiz,
+       #   color_quiz.title: color_quiz,
         }
