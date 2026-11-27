@@ -4,11 +4,13 @@ Quiz REST API hosted on a Render Python API service for distributing quiz config
 
 ## Description
 
-A configurable Quiz App using object-oriented design to simultaneously store multiple quiz definitions and display them in a PySide6 GUI or web frontend. Users select a quiz topic from a dropdown. Quiz definitions come from `QuizFactory.create_quizzes()`, keeping `models.py` unchanged and separating domain models from quiz configuration. Without affecting the GUI or models, `create_quizzes()` can later be extended to load quizzes from CSV, JSON, or an external database.
+A configurable Quiz App using object-oriented design to simultaneously store multiple quiz definitions and display them in a PySide6 GUI or web frontend. Users select a quiz topic from a dropdown. Quiz definitions come from `QuizFactory.create_quizzes()`, keeping `models.py` unchanged and separating domain models from quiz configuration. Without affecting the GUI or models, `create_quizzes()` could in the future be extended to load quizzes from CSV, JSON, or an external database.
 
 ## Models (`models.py`)
 
 Quizzes are defined in `models.py`, where `Quiz` is composed of an `Author` (instructor), a list of `Question` objects, and each `Question` holds a list of `Answer` choices.
+
+[View the Quiz Web App ](https://genericworker.github.io/quiz_project/)
 
 ## Architecture & Automated Deployment
 
@@ -48,6 +50,7 @@ flowchart LR
         DEV["Developer updates quizfactory.py<br/>& pushes to main"] --> PIPELINE["GitHub Actions & Render<br/>CI/CD Pipelines run"] --> LIVE["Updated Live Site<br/>& REST API Service"]
     end
 ```
+![Quiz app architecture diagram](architecture.png)
 
 ## Python Representation
 
@@ -199,7 +202,7 @@ Because quiz definitions live in `QuizFactory.create_quizzes()` inside `quizfact
    - Verify `http://127.0.0.1:8000/api/quizzes` returns your new or updated quiz payload.
    - Open `http://127.0.0.1:5500` in your browser, select the new or modified quiz from the topic dropdown, answer questions, submit for grading (`POST /api/grade`), and confirm scores, explanations, and edge cases behave as expected.
 
-5. **Restore production - commit, push, and retest live:**
+5. **Update production with any changes - commit, push, and retest live:**
    - Stage, commit, and push your changes to `main` to trigger GitHub Actions (GitHub Pages) and Render automated deployment.
    - Once both deployments finish, retest the live GitHub Pages site (`https://genericworker.github.io`) against the Render API to confirm the updates are live.
 
@@ -208,6 +211,6 @@ Because quiz definitions live in `QuizFactory.create_quizzes()` inside `quizfact
 You can also validate new or updated quizzes directly through the PySide6 desktop GUI without starting Uvicorn, running a static server, or changing `API_BASE_URL`:
 
 1. **Activate `.venv` at the repository root:** Run from the repository root (`C:\Users\mwhit\PycharmProjects\quiz_project`) so imports resolve `models.py` and `quizfactory.py` cleanly.
-2. **Launch the PySide6 desktop entry module:** Run your PySide6 desktop module from the repository root (for example `python -m <desktop_module>`).
+2. **Launch the PySide6 desktop entry module:** Run your PySide6 desktop module from the repository root (for example `python -m quizapp.py`).
 3. **Verify quiz content and grading:** Pick the added or modified quiz from the topic selector, answer questions, submit for grading, and check prompts, answer options, scores, and explanations.
 4. **Keep UI and domain layers decoupled:** If a widget or layout issue appears during desktop testing, fix it in the PySide6 UI code while keeping `models.py` and `quizfactory.py` intact.
