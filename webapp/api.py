@@ -81,7 +81,7 @@ class GradeResponse(BaseModel):
 
 
 def _build_quiz_map() -> Dict[str, object]:
-    """Calls your existing QuizFactory without mutating shared instances."""
+    """Calls existing QuizFactory without mutating shared instances."""
     return QuizFactory.create_quizzes()
 
 

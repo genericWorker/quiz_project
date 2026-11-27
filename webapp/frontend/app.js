@@ -1,6 +1,7 @@
-const API_BASE_URL_LOCAL = "http://127.0.0.1:8000";
-const API_BASE_URL_WRONG = "https://genericworker.github.io"
-const API_BASE_URL="https://quiz-api-genericworkerquiz-project.onrender.com"
+const  API_BASE_URL_LOCAL = "http://127.0.0.1:8000";
+const API_BASE_URL_REMOTE="https://quiz-api-genericworkerquiz-project.onrender.com";
+const isLocalHost = ["127.0.0.1", "localhost"].includes(window.location.hostname);
+const API_BASE_URL = isLocalHost ? API_BASE_URL_LOCAL : API_BASE_URL_REMOTE;
 
 const state = {
   quizTitles: [],
@@ -166,29 +167,39 @@ const renderResults = async () => {
   el.resultsView.classList.remove("hidden");
   updateHeaderAndOverview();
 
+  el.reviewList.innerHTML = "";
+  el.resultsGrade.textContent = "Grading quiz...";
+
   const payloadSelections = {};
   quiz.questions.forEach((_, idx) => {
     payloadSelections[String(idx)] = state.selections[idx] ?? null;
   });
 
-  const res = await fetch(`${API_BASE_URL}/api/grade`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      quiz_title: quiz.title,
-      selections: payloadSelections,
-    }),
-  });
+  let graded;
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/grade`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        quiz_title: quiz.title,
+        selections: payloadSelections,
+      }),
+    });
 
-  if (!res.ok) {
-    el.resultsGrade.textContent = "Unable to calculate grade from API.";
+    if (!res.ok) {
+      el.resultsGrade.textContent = "Unable to calculate grade from API.";
+      return;
+    }
+
+    graded = await res.json();
+  } catch (err) {
+    el.resultsGrade.textContent = "Unable to reach grading API.";
     return;
   }
 
-  const graded = await res.json();
-  el.resultsGrade.textContent = `Final Grade: ${graded.score} / ${graded.total_possible_points} Points (${graded.percentage}%)`;
+  el.resultsGrade.textContent =
+    `Final Grade: ${graded.score} / ${graded.total_possible_points} Points (${graded.percentage}%)`;
 
-  el.reviewList.innerHTML = "";
   graded.items.forEach((item, idx) => {
     const row = document.createElement("div");
     row.className = "review-row";
@@ -202,11 +213,24 @@ const renderResults = async () => {
       ? `[${item.category} | +${item.earned_points} pts] Your answer: ${item.selected_text}`
       : `[${item.category} | 0/${item.points} pts] Your answer: ${item.selected_text} | Correct: ${item.correct_text}`;
 
+    const titleEl = document.createElement("p");
+    titleEl.className = "review-q-title";
+    titleEl.textContent = `${idx + 1}. ${item.prompt}`;
+
+    const detailEl = document.createElement("p");
+    detailEl.className = "review-q-detail";
+    detailEl.textContent = detail;
+
     const textCol = document.createElement("div");
-    textCol.innerHTML = `
-      <p class="review-q-title">${idx + 1}. ${item.prompt}</p>
-      <p class="review-q-detail">${detail}</p>
-    `;
+    textCol.appendChild(titleEl);
+    textCol.appendChild(detailEl);
+
+    if (item.explanation) {
+      const expEl = document.createElement("p");
+      expEl.className = "review-q-explanation";
+      expEl.textContent = item.explanation;
+      textCol.appendChild(expEl);
+    }
 
     row.appendChild(icon);
     row.appendChild(textCol);
