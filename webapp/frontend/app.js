@@ -1,8 +1,16 @@
-const  API_BASE_URL_LOCAL = "http://127.0.0.1:8000";
-const API_BASE_URL_REMOTE="https://quiz-api-genericworkerquiz-project.onrender.com";
-const isLocalHost = ["127.0.0.1", "localhost"].includes(window.location.hostname);
-const API_BASE_URL = isLocalHost ? API_BASE_URL_LOCAL : API_BASE_URL_REMOTE;
+const API_BASE_URL_LOCAL = "http://127.0.0.1:8000";
+const API_BASE_URL_REMOTE = "https://quiz-api-genericworkerquiz-project.onrender.com";
 
+const { protocol, hostname } = window.location;
+const isLocalHost = ["127.0.0.1", "localhost"].includes(hostname);
+const isCodespacesPort5500 = hostname.includes("-5500.");
+
+const API_BASE_URL = isLocalHost
+  ? API_BASE_URL_LOCAL
+  : isCodespacesPort5500
+    ? `${protocol}//${hostname.replace("-5500.", "-8000.")}`
+    : API_BASE_URL_REMOTE;
+    
 const state = {
   quizTitles: [],
   activeQuiz: null,

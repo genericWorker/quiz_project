@@ -131,10 +131,10 @@ class QuizFactory:
 
 ## FastAPI Service (`webapp/api.py`)
 
-`webapp/api.py` exposes `QuizFactory.create_quizzes()` and the domain models over HTTP so the static frontend on GitHub Pages (or local port `5500`) can load quizzes and submit answers for grading:
+`webapp/api.py` exposes `QuizFactory.create_quizzes()` and the domain models over HTTP so the static frontend on GitHub Pages, local port `5500`, or forwarded Codespaces ports can load quizzes and submit answers for grading:
 
 - **Path & Factory Integration:** Inserts the project root and `webapp/` into `sys.path` so `models` and `quizfactory` resolve reliably, and calls `QuizFactory.create_quizzes()` on requests without mutating domain instances.
-- **CORS Configuration:** Configures `CORSMiddleware` for `https://genericworker.github.io`, `http://localhost:5500`, and `http://127.0.0.1:5500` across `GET`, `POST`, and `OPTIONS` requests.
+- **CORS Configuration:** Configures `CORSMiddleware` for `https://genericworker.github.io`, `http://localhost:5500`, `http://127.0.0.1:5500`, and forwarded Codespaces origins across `GET`, `POST`, and `OPTIONS` requests.
 - **Endpoints:**
   - `GET /api/quizzes` — Returns available quiz titles (`list[str]`).
   - `GET /api/quizzes/{quiz_title}` — Returns `QuizBundleOut` (metadata, total points, and questions/answers), or `404` if the quiz does not exist.
@@ -171,7 +171,7 @@ flowchart TB
 
 ## Adding or Modifying Quizzes
 
-Because quiz definitions live in `QuizFactory.create_quizzes()` inside `quizfactory.py` rather than in `models.py` or the UI, you can add or update quizzes in one place and reuse the same models across `pytest`, the PySide6 desktop app, and the FastAPI web app.
+Because quiz definitions live in `QuizFactory.create_quizzes()` inside `quizfactory.py` rather than in `models.py` or the UI, you can add or update quizzes in one place and reuse the same models across `pytest`, the PySide6 desktop app, and the FastAPI web app. For complete environment setup instructions, see `SETUP.md`.
 
 1. **Edit `QuizFactory.create_quizzes()` in `quizfactory.py`:**
    - Add a new `Quiz` (with an `Author`, `title`, `description`, `welcome_message`, and list of `Question` objects built via `QuizFactory.create_question(...)`) or update existing questions, answer options, explanations, categories, or point values.
@@ -179,26 +179,26 @@ Because quiz definitions live in `QuizFactory.create_quizzes()` inside `quizfact
    - Return the updated dictionary mapping each quiz title to its `Quiz` instance.
 
 2. **Run unit tests (`pytest`) from the project root:**
-   - Install dependencies (`pip install -r requirements-dev.txt`) and run `pytest` from the project root to verify quiz counts, authors, questions, answer keys, and scoring logic:
+   - Install dependencies (`pip install -r requirements-dev.txt`) and run `pytest` from the project root (`quiz_project`) to verify quiz counts, authors, questions, answer keys, and scoring logic:
      ```bash
      pytest
      ```
    - Fix any failing assertions or factory typos before moving to browser or API checks.
 
-3. **Start the local FastAPI backend and static frontend:**
+3. **Start the local FastAPI backend and static frontend from the project root:**
    - **Terminal 1 — FastAPI / Uvicorn (port `8000`):**
      ```bash
      python -m uvicorn webapp.api:app --reload --reload-dir . --port 8000
      ```
-   - **Terminal 2 (or Live Server) — Static frontend (port `5500`):**
+   - **Terminal 2 — Static frontend (port `5500`, anchored at project root):**
      ```bash
-     cd webapp/frontend
-     python -m http.server 5500
+     python -m http.server 5500 --directory webapp/frontend
      ```
 
-4. **Test the webapp locally end-to-end:**
-   - Verify `http://127.0.0.1:8000/api/quizzes` returns your new or updated quiz payload.
-   - Open `http://127.0.0.1:5500` in your browser, select the new or modified quiz from the topic dropdown, answer questions, submit for grading (`POST /api/grade`), and confirm scores, explanations, and edge cases behave as expected.
+4. **Test the webapp end-to-end:**
+   - **Local machine:** Verify `http://127.0.0.1:8000/api/quizzes` returns your quiz payload, then open `http://127.0.0.1:5500` in your browser.
+   - **GitHub Codespaces (`cs50.dev`):** Open the **Ports** tab in VS Code, ensure both port `5500` and port `8000` are forwarded (with port `8000` set to **Public** if needed), and click **Open in Browser** on port `5500`. `webapp/frontend/app.js` automatically maps the `-5500.` forwarded host to `-8000.`.
+   - Select the new or modified quiz from the topic dropdown, answer questions, submit for grading (`POST /api/grade`), and confirm scores, explanations, and edge cases behave as expected.
 
 5. **Update production with any changes — commit, push, and retest live:**
    - Stage, commit, and push your changes to `main` to trigger GitHub Actions (GitHub Pages) and Render automated deployment.
