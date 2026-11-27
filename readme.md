@@ -10,7 +10,7 @@ A configurable Quiz App using object-oriented design to simultaneously store mul
 
 Quizzes are defined in `models.py`, where `Quiz` is composed of an `Author` (instructor), a list of `Question` objects, and each `Question` holds a list of `Answer` choices.
 
-[View the Quiz Web App ](https://genericworker.github.io/quiz_project/)
+[View the Quiz Web App](https://genericworker.github.io/quiz_project/)
 
 ## Architecture & Automated Deployment
 
@@ -50,6 +50,7 @@ flowchart LR
         DEV["Developer updates quizfactory.py<br/>& pushes to main"] --> PIPELINE["GitHub Actions & Render<br/>CI/CD Pipelines run"] --> LIVE["Updated Live Site<br/>& REST API Service"]
     end
 ```
+
 ![Quiz app architecture diagram](architecture.png)
 
 ## Python Representation
@@ -127,6 +128,7 @@ class QuizFactory:
             oop_quiz.title: oop_quiz,
         }
 ```
+
 ## FastAPI Service (`webapp/api.py`)
 
 `webapp/api.py` exposes `QuizFactory.create_quizzes()` and the domain models over HTTP so the static frontend on GitHub Pages (or local port `5500`) can load quizzes and submit answers for grading:
@@ -165,6 +167,7 @@ flowchart TB
 - **Shared Core Reuse:** The PySide6 desktop GUI uses the exact same `models.py` and `QuizFactory.create_quizzes()` classes as the FastAPI backend—no duplicated quiz definitions.
 - **Topic Selection & Grading:** Selecting a topic from the dropdown loads that `Quiz` instance into the UI, tracks chosen `Answer` options per `Question`, and computes total points and explanations on submission.
 - **Independent Workflow:** Because `models.py` and `quizfactory.py` stay decoupled from the UI layer, you can update quizzes in `QuizFactory` or refine PySide6 widgets without breaking the web app or REST API.
+- **GitHub Codespaces Limitation:** When running in GitHub Codespaces, you cannot launch the PySide6 desktop app directly in a local desktop window unless you use a remote terminal/display forwarding setup. Use the FastAPI backend and web frontend inside Codespaces, and run the desktop GUI on a local desktop machine.
 
 ## Adding or Modifying Quizzes
 
@@ -175,26 +178,21 @@ Because quiz definitions live in `QuizFactory.create_quizzes()` inside `quizfact
    - Keep `models.py` untouched so data structures remain decoupled from quiz content.
    - Return the updated dictionary mapping each quiz title to its `Quiz` instance.
 
-2. **Run unit tests (`pytest`) from the repository root:**
-   - Activate your virtual environment and run `pytest` to verify quiz counts, authors, questions, answer keys, and scoring logic:
-     ```powershell
-     cd C:\Users\mwhit\PycharmProjects\quiz_project
-     .venv\Scripts\Activate.ps1
+2. **Run unit tests (`pytest`) from the project root:**
+   - Install dependencies (`pip install -r requirements-dev.txt`) and run `pytest` from the project root to verify quiz counts, authors, questions, answer keys, and scoring logic:
+     ```bash
      pytest
      ```
    - Fix any failing assertions or factory typos before moving to browser or API checks.
 
-
 3. **Start the local FastAPI backend and static frontend:**
    - **Terminal 1 — FastAPI / Uvicorn (port `8000`):**
-     ```powershell
-     cd C:\Users\mwhit\PycharmProjects\quiz_project
-     .venv\Scripts\Activate.ps1
+     ```bash
      python -m uvicorn webapp.api:app --reload --reload-dir . --port 8000
      ```
    - **Terminal 2 (or Live Server) — Static frontend (port `5500`):**
-     ```powershell
-     cd C:\Users\mwhit\PycharmProjects\quiz_project\webapp\frontend
+     ```bash
+     cd webapp/frontend
      python -m http.server 5500
      ```
 
@@ -202,15 +200,15 @@ Because quiz definitions live in `QuizFactory.create_quizzes()` inside `quizfact
    - Verify `http://127.0.0.1:8000/api/quizzes` returns your new or updated quiz payload.
    - Open `http://127.0.0.1:5500` in your browser, select the new or modified quiz from the topic dropdown, answer questions, submit for grading (`POST /api/grade`), and confirm scores, explanations, and edge cases behave as expected.
 
-5. **Update production with any changes - commit, push, and retest live:**
+5. **Update production with any changes — commit, push, and retest live:**
    - Stage, commit, and push your changes to `main` to trigger GitHub Actions (GitHub Pages) and Render automated deployment.
-   - Once both deployments finish, retest the live GitHub Pages site (`https://genericworker.github.io`) against the Render API to confirm the updates are live.
+   - Once both deployments finish, retest the live GitHub Pages site (`https://genericworker.github.io/quiz_project/`) against the Render API to confirm the updates are live.
 
 ## Testing with the PySide6 Desktop App
 
-You can also validate new or updated quizzes directly through the PySide6 desktop GUI without starting Uvicorn, or running a static local server:
+You can validate new or updated quizzes directly through the PySide6 desktop GUI without starting Uvicorn or a static HTTP server. Note that in GitHub Codespaces this is not possible unless using a remote terminal/display forwarding setup—run it on a local desktop environment instead:
 
-1. **Activate `.venv` at the repository root:** Run from the repository root (`C:\Users\mwhit\PycharmProjects\quiz_project`) so imports resolve `models.py` and `quizfactory.py` cleanly.
-2. **Launch the PySide6 desktop entry module:** Run your PySide6 desktop module from the repository root (for example `python -m quizapp.py`).
+1. **Run from the project root:** Open your terminal at the project root so imports resolve `models.py` and `quizfactory.py` cleanly (activating `.venv` first if using one on your local machine).
+2. **Launch the PySide6 desktop entry module:** Run `python quizapp.py` from the project root.
 3. **Verify quiz content and grading:** Pick the added or modified quiz from the topic selector, answer questions, submit for grading, and check prompts, answer options, scores, and explanations.
 4. **Keep UI and domain layers decoupled:** If a widget or layout issue appears during desktop testing, fix it in the PySide6 UI code while keeping `models.py` and `quizfactory.py` intact.

@@ -1,40 +1,54 @@
-# Setup & Local Development (`SETUP.md`)
+# Setup & Local Development
 
 ## 1. Dependencies
 
-From the repository root (`C:\Users\mwhit\PycharmProjects\quiz_project`) with `.venv` active:
+From the project root (`quiz_project`), install development and runtime dependencies (which pull in `requirements.txt` via `-r`):
 
-```powershell
-.venv\Scripts\Activate.ps1
+```bash
 pip install -r requirements-dev.txt
 ```
 
-`requirements.txt` holds runtime packages for the hosted Render API, while `requirements-dev.txt` layers in local test and desktop packages (`-r requirements.txt`).
+If you only need runtime dependencies without dev/test packages:
 
-## 2. Package Initialization & Import Check
+```bash
+pip install -r requirements.txt
+```
 
-Ensure `webapp` is recognized as a package and verify imports directly before starting Uvicorn:
+If you use a virtual environment on Windows PowerShell, create and activate it first:
 
 ```powershell
-New-Item -ItemType File -Path webapp\__init__.py -Force
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements-dev.txt
+```
+
+## 2. Package & Test Verification
+
+Verify that `webapp.api` imports cleanly and run `pytest` from the project root:
+
+```bash
 python -c "import webapp.api; print(webapp.api.app)"
+pytest
 ```
 
-## 3. Running Locally (`8000` API + `5500` Frontend)
+If `webapp` needs `__init__.py` to be treated as a package and does not already have one, create it once rather than on every run:
 
-```javascript
-const API_BASE_URL = "http://127.0.0.1:8000";
-```
+* **Linux / macOS / Codespaces:** `touch webapp/__init__.py`
+* **Windows PowerShell:** `New-Item -ItemType File -Path webapp\__init__.py -Force`
 
-Start the FastAPI server from the repository root:
+## 3. Running Locally (API on Port `8000` + Frontend on Port `5500`)
 
-```powershell
+Make sure your frontend API base URL points to the local backend (for example, `http://127.0.0.1:8000`).
+
+Start the FastAPI server from the project root:
+
+```bash
 python -m uvicorn webapp.api:app --reload --reload-dir . --port 8000
 ```
 
-In a second terminal (or via Live Server), serve the frontend on port `5500`:
+In a second terminal (or using Live Server), serve the frontend from `webapp/frontend` on port `5500`:
 
-```powershell
-cd C:\Users\mwhit\PycharmProjects\quiz_project\webapp\frontend
+```bash
+cd webapp/frontend
 python -m http.server 5500
 ```
