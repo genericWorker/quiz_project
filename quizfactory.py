@@ -363,7 +363,6 @@ class QuizFactory:
         #         ),
         #     ],
         # )
-
         return {
             python_quiz.title: python_quiz,
             ds_quiz.title: ds_quiz,
