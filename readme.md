@@ -208,7 +208,7 @@ Because quiz definitions live in `QuizFactory.create_quizzes()` inside `quizfact
 
 ## Testing with the PySide6 Desktop App
 
-You can also validate new or updated quizzes directly through the PySide6 desktop GUI without starting Uvicorn, running a static server, or changing `API_BASE_URL`:
+You can also validate new or updated quizzes directly through the PySide6 desktop GUI without starting Uvicorn, or running a static local server:
 
 1. **Activate `.venv` at the repository root:** Run from the repository root (`C:\Users\mwhit\PycharmProjects\quiz_project`) so imports resolve `models.py` and `quizfactory.py` cleanly.
 2. **Launch the PySide6 desktop entry module:** Run your PySide6 desktop module from the repository root (for example `python -m quizapp.py`).
