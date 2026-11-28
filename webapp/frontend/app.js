@@ -1,3 +1,7 @@
+// Resolve the backend API base URL based on the current browser host:
+// - Localhost/loopback -> local API URL
+// - GitHub Codespaces forwarded port 5500 -> corresponding port 8000 URL on the same protocol
+// - Any other host -> remote/production API URL
 const API_BASE_URL_LOCAL = "http://127.0.0.1:8000";
 const API_BASE_URL_REMOTE = "https://quiz-api-genericworkerquiz-project.onrender.com";
 

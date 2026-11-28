@@ -14,6 +14,7 @@ def test_create_quizzes_quizzes_returns_expected_titles(quiz_catalog: dict[str, 
         "Data Structures & Algorithms",
         "Relational Database Systems",
         "Java Object-Oriented Programming",
+        "Color Science & Digital Color",
     }
     assert set(quiz_catalog.keys()) == expected_titles
     for key, quiz in quiz_catalog.items():
@@ -86,3 +87,11 @@ def test_factory_returns_independent_quiz_instances():
     assert py_quiz_1.calculate_score() == first_question.points
     assert py_quiz_2.questions[0].selected_index is None
     assert py_quiz_2.calculate_score() == 0
+
+def test_color_science_quiz_structure_and_points():
+    quizzes = QuizFactory.create_quizzes()
+    color_quiz = quizzes["Color Science & Digital Color"]
+
+    assert len(color_quiz.questions) == 4
+    assert sum(q.points for q in color_quiz.questions) == 45
+    assert color_quiz.instructor.name == "Prof. Michael Whitehead"
