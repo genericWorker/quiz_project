@@ -46,6 +46,7 @@ def test_create_quizzes_returns_expected_quizzes_and_valid_keys():
         "Data Structures & Algorithms",
         "Relational Database Systems",
         "Java Object-Oriented Programming",
+        "Color Science & Digital Color",
     }
     assert set(quizzes.keys()) == expected_titles
 
