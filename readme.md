@@ -12,43 +12,19 @@ Quizzes are defined in `models.py`, where `Quiz` is composed of an `Author` (ins
 
 [View the Quiz Web App](https://genericworker.github.io/quiz_project/)
 
-## Architecture & Automated Deployment
+## Architecture and Automated Deployment
 
 ```mermaid
 flowchart LR
-    subgraph SRC["1. Source Control & Automation (GitHub)"]
-        direction TB
-        REPO["GitHub Repository (main)"]
-        CODE["models.py (Quiz Models)<br/>quizfactory.py (Defines Quizzes)<br/>webapp/frontend/ (HTML, CSS, JS)<br/>webapp/api.py (FastAPI)"]
-        GHA["GitHub Actions CI/CD<br/>(Triggers on push to main)"]
-        RENDER_AUTO["Render Automated Deployment<br/>(Triggers on push to main)"]
-
-        REPO --> CODE --> GHA
-        CODE --> RENDER_AUTO
-    end
-
-    subgraph PAGES["2. Production Environment (GitHub Pages)"]
-        STATIC["GitHub Pages Static Web Server<br/>Webapp (HTML, CSS, JS)"]
-    end
-
-    subgraph RENDER["3. Production Environment (Render Cloud)"]
-        API["Python REST API Service<br/>(FastAPI / Uvicorn)<br/>Uses Quiz Models & QuizFactory"]
-    end
-
-    subgraph FLOW["4. Client Interaction & Data Flow"]
-        USER["User"] -->|"Accesses Webapp"| STATIC
-        STATIC -->|"1. Load Quizzes (GET /api/quizzes)"| API
-        API -->|"2. Returns Quiz Data (JSON)"| STATIC
-        STATIC -->|"3. Submit Score (POST /api/grade)"| API
-    end
-
-    GHA -->|"Publishes static files"| STATIC
-    RENDER_AUTO -->|"Builds & deploys API"| API
-
-    subgraph UPD["Automated Updates Process"]
-        direction TB
-        DEV["Developer updates quizfactory.py<br/>& pushes to main"] --> PIPELINE["GitHub Actions & Render<br/>CI/CD Pipelines run"] --> LIVE["Updated Live Site<br/>& REST API Service"]
-    end
+    REPO["GitHub Repository"] --> CODE["models.py, quizfactory.py, webapp"]
+    CODE --> GHA["GitHub Actions CI/CD"]
+    CODE --> RENDER_AUTO["Render Auto Deploy"]
+    GHA --> STATIC["GitHub Pages Static Site"]
+    RENDER_AUTO --> API["Render FastAPI Service"]
+    USER["User"] -->|Opens Webapp| STATIC
+    STATIC -->|GET /api/quizzes| API
+    API -->|Quiz JSON| STATIC
+    STATIC -->|POST /api/grade| API
 ```
 
 ![Quiz app architecture diagram](architecture.png)
@@ -133,7 +109,7 @@ class QuizFactory:
 
 `webapp/api.py` exposes `QuizFactory.create_quizzes()` and the domain models over HTTP so the static frontend on GitHub Pages, local port `5500`, or forwarded Codespaces ports can load quizzes and submit answers for grading:
 
-- **Path & Factory Integration:** Inserts the project root and `webapp/` into `sys.path` so `models` and `quizfactory` resolve reliably, and calls `QuizFactory.create_quizzes()` on requests without mutating domain instances.
+- **Path and Factory Integration:** Inserts the project root and `webapp/` into `sys.path` so `models` and `quizfactory` resolve reliably, and calls `QuizFactory.create_quizzes()` on requests without mutating domain instances.
 - **CORS Configuration:** Configures `CORSMiddleware` for `https://genericworker.github.io`, `http://localhost:5500`, `http://127.0.0.1:5500`, and forwarded Codespaces origins across `GET`, `POST`, and `OPTIONS` requests.
 - **Endpoints:**
   - `GET /api/quizzes` — Returns available quiz titles (`list[str]`).
@@ -144,34 +120,23 @@ class QuizFactory:
 
 ```mermaid
 flowchart TB
-    subgraph UI["Desktop UI Layer (PySide6)"]
-        SELECTOR["Quiz Topic Selector<br/>(QComboBox Dropdown)"]
-        VIEW["Question & Answer View<br/>(Interactive Selection & Feedback)"]
-        SCORE["Score & Summary Panel<br/>(Points & Explanations)"]
-    end
-
-    subgraph DOMAIN["Shared Core Domain (Repository Root)"]
-        FACTORY["QuizFactory.create_quizzes()<br/>(quizfactory.py)"]
-        MODELS["Quiz / Author / Question / Answer<br/>(models.py)"]
-    end
-
-    FACTORY -->|"Instantiates domain objects"| MODELS
-    FACTORY -->|"Provides available quizzes"| SELECTOR
-    SELECTOR -->|"Loads selected Quiz"| VIEW
-    VIEW -->|"Evaluates selected Answers"| SCORE
-    MODELS -->|"Supplies prompts, options & points"| VIEW
+    FACTORY["QuizFactory.create_quizzes()"] --> MODELS["models.py Domain Models"]
+    FACTORY --> SELECTOR["Topic Dropdown"]
+    SELECTOR --> VIEW["Question and Answer View"]
+    VIEW --> SCORE["Score and Summary Panel"]
+    MODELS --> VIEW
 ```
 
 ### Desktop App Notes
 
 - **Shared Core Reuse:** The PySide6 desktop GUI uses the exact same `models.py` and `QuizFactory.create_quizzes()` classes as the FastAPI backend—no duplicated quiz definitions.
-- **Topic Selection & Grading:** Selecting a topic from the dropdown loads that `Quiz` instance into the UI, tracks chosen `Answer` options per `Question`, and computes total points and explanations on submission.
+- **Topic Selection and Grading:** Selecting a topic from the dropdown loads that `Quiz` instance into the UI, tracks chosen `Answer` options per `Question`, and computes total points and explanations on submission.
 - **Independent Workflow:** Because `models.py` and `quizfactory.py` stay decoupled from the UI layer, you can update quizzes in `QuizFactory` or refine PySide6 widgets without breaking the web app or REST API.
 - **GitHub Codespaces Limitation:** When running in GitHub Codespaces, you cannot launch the PySide6 desktop app directly in a local desktop window unless you use a remote terminal/display forwarding setup. Use the FastAPI backend and web frontend inside Codespaces, and run the desktop GUI on a local desktop machine.
 
 ## Adding or Modifying Quizzes
 
-Because quiz definitions live in `QuizFactory.create_quizzes()` inside `quizfactory.py` rather than in `models.py` or the UI, you can add or update quizzes in one place and reuse the same models across `pytest`, the PySide6 desktop app, and the FastAPI web app. For complete environment setup instructions, see `SETUP.md`.
+Because quiz definitions live in `QuizFactory.create_quizzes()` inside `quizfactory.py` rather than in `models.py` or the UI, you can add or update quizzes in one place and reuse the same models across `pytest`, `project.py`, the PySide6 desktop app, and the FastAPI web app. For complete environment setup instructions, see `SETUP.md`.
 
 1. **Edit `QuizFactory.create_quizzes()` in `quizfactory.py`:**
    - Add a new `Quiz` (with an `Author`, `title`, `description`, `welcome_message`, and list of `Question` objects built via `QuizFactory.create_question(...)`) or update existing questions, answer options, explanations, categories, or point values.
@@ -212,3 +177,67 @@ You can validate new or updated quizzes directly through the PySide6 desktop GUI
 2. **Launch the PySide6 desktop entry module:** Run `python quizapp.py` from the project root.
 3. **Verify quiz content and grading:** Pick the added or modified quiz from the topic selector, answer questions, submit for grading, and check prompts, answer options, scores, and explanations.
 4. **Keep UI and domain layers decoupled:** If a widget or layout issue appears during desktop testing, fix it in the PySide6 UI code while keeping `models.py` and `quizfactory.py` intact.
+
+## Root Entry Point and Automated Grading (`project.py` & `test_project.py`)
+
+For automated grading, `project.py` and `test_project.py` reside in the repository root alongside `requirements.txt` and `pyproject.toml`.
+
+### Environment Setup
+
+1. Activate your virtual environment from the project root in PowerShell:
+   ```powershell
+   .venv\Scripts\Activate.ps1
+   ```
+2. Install dependencies:
+   ```powershell
+   pip install -r requirements.txt
+   ```
+   *(If you use a separate `requirements-dev.txt`, install that as well before running `pytest`.)*
+3. Ensure `[tool.pytest.ini_options]` in `pyproject.toml` discovers root and `tests` files and registers the `live` marker:
+   ```toml
+   [tool.pytest.ini_options]
+   pythonpath = ["."]
+   testpaths = [".", "tests"]
+   addopts = "-ra"
+   markers = [
+       "live: marks tests that hit the live Render deployment over the network",
+   ]
+   ```
+
+### Root Entry Point (`project.py`)
+
+`project.py` defines `main()` and top-level functions that exercise the quiz catalog, FastAPI routes in-process via `TestClient` (no local server required), and optional live requests when `base_url` is passed:
+
+- `list_available_quizzes(base_url=None)` — fetches available quiz titles from `/api/quizzes`.
+- `fetch_quiz_bundle(quiz_title, base_url=None)` — retrieves quiz metadata, total points, and questions/answers from `/api/quizzes/{quiz_title}`.
+- `grade_quiz_answers(quiz_title, selections, base_url=None)` — posts answer selections to `/api/grade` and returns score, percentage, and item breakdown.
+
+Run `project.py` directly from the project root:
+
+```powershell
+python project.py
+```
+
+### Running `test_project.py` (`pytest`)
+
+`test_project.py` in the project root contains `test_*` functions matching the top-level functions in `project.py`.
+
+#### Default Offline Tests (Autograding and Fast Local Checks)
+
+Runs in-memory via `TestClient` without needing a running server, external network access, or live Render requests:
+
+```powershell
+pytest test_project.py -v
+```
+
+#### Optional `"live"` Tests Against Render
+
+Live tests are decorated with `@pytest.mark.live` and skipped by default unless `RUN_LIVE_RENDER_TESTS=1` is set. Set the environment variable, run the `"live"` test(s) against `https://quiz-api-genericworkerquiz-project.onrender.com`, and clear the variable afterward if you want later runs in the same shell to stay offline:
+
+```powershell
+$env:RUN_LIVE_RENDER_TESTS="1"
+pytest -m live test_project.py -v
+Remove-Item Env:RUN_LIVE_RENDER_TESTS -ErrorAction SilentlyContinue
+```
+
+*(Initial requests to Render after idle spin-down may take extra time while the instance wakes up.)*
