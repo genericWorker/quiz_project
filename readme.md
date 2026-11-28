@@ -4,7 +4,9 @@ Quiz REST API hosted on a Render Python API service for distributing quiz config
 
 ## Description
 
-A configurable Quiz App using object-oriented design to simultaneously store multiple quiz definitions and display them in a PySide6 GUI or web frontend. Users select a quiz topic from a dropdown. Quiz definitions come from `QuizFactory.create_quizzes()`, keeping `models.py` unchanged and separating domain models from quiz configuration. Without affecting the GUI or models, `create_quizzes()` could in the future be extended to load quizzes from CSV, JSON, or an external database.
+A configurable online Quiz Service using object-oriented design to simultaneously store multiple quiz definitions and display them in a web frontend hosted on GitHub/Azure Cloud and a Python FastAPI Rest service hosted on Render. A PySide6 Ptyhon Deskop app is provided for local use and testing. 
+
+Users select a quiz topic from a dropdown. Quiz definitions are provisioned from `QuizFactory.create_quizzes()`, keeping `models.py` unchanged and separating domain models from quiz configuration. Without affecting the GUI or models. Additioned or modifications the quizzes from QuizFactory, when checked into GitHub become nearlly immediately  available to the website via GitHub Pages built-in CI/CD deployement and integrations.  
 
 ## Models (`models.py`)
 
@@ -132,7 +134,7 @@ flowchart TB
 - **Shared Core Reuse:** The PySide6 desktop GUI uses the exact same `models.py` and `QuizFactory.create_quizzes()` classes as the FastAPI backend—no duplicated quiz definitions.
 - **Topic Selection and Grading:** Selecting a topic from the dropdown loads that `Quiz` instance into the UI, tracks chosen `Answer` options per `Question`, and computes total points and explanations on submission.
 - **Independent Workflow:** Because `models.py` and `quizfactory.py` stay decoupled from the UI layer, you can update quizzes in `QuizFactory` or refine PySide6 widgets without breaking the web app or REST API.
-- **GitHub Codespaces Limitation:** When running in GitHub Codespaces, you cannot launch the PySide6 desktop app directly in a local desktop window unless you use a remote terminal/display forwarding setup. Use the FastAPI backend and web frontend inside Codespaces, and run the desktop GUI on a local desktop machine.
+- **GitHub Codespaces Limitation:** When running in GitHub Codespaces, you cannot launch the PySide6 desktop app directly in a local desktop window unless you use a remote terminal/display forwarding setup. But you can use the FastAPI backend and web frontend inside Codespaces without issue or run the desktop GUI. 
 
 ## Adding or Modifying Quizzes
 
@@ -171,7 +173,7 @@ Because quiz definitions live in `QuizFactory.create_quizzes()` inside `quizfact
 
 ## Testing with the PySide6 Desktop App
 
-You can validate new or updated quizzes directly through the PySide6 desktop GUI without starting Uvicorn or a static HTTP server. Note that in GitHub Codespaces this is not possible unless using a remote terminal/display forwarding setup—run it on a local desktop environment instead:
+You can validate new or updated quizzes directly through the PySide6 desktop GUI without starting Uvicorn or a static HTTP server. Note that in GitHub Codespaces this is not possible unless using a remote terminal/display forwarding setup or you can run desktop environment locally:
 
 1. **Run from the project root:** Open your terminal at the project root so imports resolve `models.py` and `quizfactory.py` cleanly (activating `.venv` first if using one on your local machine).
 2. **Launch the PySide6 desktop entry module:** Run `python quizapp.py` from the project root.
